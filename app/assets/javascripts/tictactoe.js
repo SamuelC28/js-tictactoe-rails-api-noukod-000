@@ -17,8 +17,8 @@ function player() {
 }
 
 function updateState(clickedSquare) {
-  var token = player(); /* assign token to either X or O */
-  $(clickedSquare).text(token) //add player token to the clickedSquare
+  var token = player(); 
+  $(clickedSquare).text(token) 
 }
 
 function setMessage(message) {
@@ -26,15 +26,14 @@ function setMessage(message) {
 }
 
 function checkWinner() {
-  var winner = false //default value
-  var board = {} // start with empty object for board
+  var winner = false 
+  var board = {} 
 
   $('td').text(function(index, square) {
-    board[index] = square;  /* populate game board */
+    board[index] = square;  
     debugger
   })
-  //pull text from each td
-  //index = index position; board[1] = square 2
+
 
   WINNING_COMBOS.forEach(function(position) {
     if (board[position[0]] === board[position[1]] && board[position[1]] === board[position[2]] && board[position[0]] !== "") {
@@ -42,17 +41,17 @@ function checkWinner() {
       return winner = true
     }
   })
-  return winner /* false, as defined on line 22 */
+  return winner 
 }
 
 function doTurn(clickedSquare) {
-  updateState(clickedSquare) /*add a token to the board */
-  turn++; /* increment turn by 1 */
-  if (checkWinner()) { /* check if there's a winner after the turn */
-    saveGame(); //auto-save game
-    clearBoard(); /* clear the board if there's a winner */
+  updateState(clickedSquare) 
+  turn++;
+  if (checkWinner()) {
+    saveGame(); 
+    clearBoard(); 
   } else if (turn === 9) {
-    saveGame(); //auto-save game
+    saveGame(); 
     clearBoard();
     setMessage("Tie game.")
   }
@@ -61,8 +60,8 @@ function doTurn(clickedSquare) {
 function attachListeners() {
   $('td').click(function() {
     //debugger
-    if ($.text(this) === "" && !checkWinner()) /* if there is no winner yet and the square is blank, invoke doTurn */
-    // 'this' equals the td data-x and data-y of the clicked square
+    if ($.text(this) === "" && !checkWinner()) 
+  
     doTurn(this)
   })
 
@@ -80,21 +79,19 @@ function attachListeners() {
 }
 
 function clearBoard() {
-  $('td').empty(); //grab all the tds and empty any Xs and Os
-  turn = 0; //reset turn count to 0
-  currentGame = 0; //set currentGame back to 0
+  $('td').empty(); 
+  turn = 0; 
+  currentGame = 0; 
 }
 
 function previousGames() {
   $('#games').empty();
-  $.get('/games', function(data) { //games have been saved to /games; get data from it
-    if (data.data.length > 0) { //if data has saved games
-      data.data.forEach(makePreviousGameButton); //create button for each game in data
+  $.get('/games', function(data) { 
+    if (data.data.length > 0) { 
+      data.data.forEach(makePreviousGameButton);
     }
   })
-  //check if previously saved games exist
-  //if so, retrieve them
-  //append those game buttons to $('games')
+
 }
 
 function makePreviousGameButton(game) {
@@ -105,18 +102,17 @@ function makePreviousGameButton(game) {
 }
 
 function reloadGame(gameID) {
-  //GET request to games/gameid
-  //take data and add to the state and gameboard
-  $.get(`/games/${gameID}`, function(game) { //game = data object
-    let state = game.data.attributes.state; // state array
-    //debugger
+  d
+  $.get(`/games/${gameID}`, function(game) { 
+    let state = game.data.attributes.state; 
+  
     let id = game.data.id;
     let board = {}
-    //debugger
+    
 
     let index = 0;
-    //inner loop (x) will run up to 2 before y increments by 1
-    for (let y = 0; y < 3; y++) { //loop will run 0,0; 1,0; 2,0; 1,0; 1,1; 1,2; 2,0; 2,1; 2,2
+    
+    for (let y = 0; y < 3; y++) { 
       for (let x = 0; x < 3; x++) {
       document.querySelector(`[data-x="${x}"][data-y="${y}"]`).innerHTML = state[index];
       index++
@@ -134,24 +130,24 @@ function reloadGame(gameID) {
 }
 
 function saveGame() {
-  var state = []; //state is stored in an array, per Game model
+  var state = []; 
 
   $('td').text(function(index, square) {
     state.push(square);
   })
-  //get text from the td and push it onto the state array
+  
 
   var gameData = {state: state}
 
-  if (currentGame) { //if we are in the current game (i.e., an already existing game)
+  if (currentGame) { 
     $.ajax({
-      type: "PATCH", //to UPDATE
+      type: "PATCH", 
       url: `/games/${currentGame}`,
-      data: gameData //send the state array
+      data: gameData 
     })
   } else {
-    $.post('/games', gameData, function(game) { //game is the data object  sent back from server
-      currentGame = game.data.id; //assign currentGame the ID of game.data
+    $.post('/games', gameData, function(game) { 
+      currentGame = game.data.id; 
       $('#games').append(`<button id="gameid-${game.data.id}">${game.data.id}</button><br>`);
       $("#gameid-" + game.data.id).on('click', () => reloadGame(game.data.id));
     });
