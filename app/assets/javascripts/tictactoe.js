@@ -17,8 +17,8 @@ function player() {
 }
 
 function updateState(clickedSquare) {
-  var token = player(); 
-  $(clickedSquare).text(token) 
+  var token = player();
+  $(clickedSquare).text(token)
 }
 
 function setMessage(message) {
@@ -26,11 +26,11 @@ function setMessage(message) {
 }
 
 function checkWinner() {
-  var winner = false 
-  var board = {} 
+  var winner = false
+  var board = {}
 
   $('td').text(function(index, square) {
-    board[index] = square;  
+    board[index] = square;
     debugger
   })
 
@@ -41,17 +41,17 @@ function checkWinner() {
       return winner = true
     }
   })
-  return winner 
+  return winner
 }
 
 function doTurn(clickedSquare) {
-  updateState(clickedSquare) 
+  updateState(clickedSquare)
   turn++;
   if (checkWinner()) {
-    saveGame(); 
-    clearBoard(); 
+    saveGame();
+    clearBoard();
   } else if (turn === 9) {
-    saveGame(); 
+    saveGame();
     clearBoard();
     setMessage("Tie game.")
   }
@@ -60,8 +60,8 @@ function doTurn(clickedSquare) {
 function attachListeners() {
   $('td').click(function() {
     //debugger
-    if ($.text(this) === "" && !checkWinner()) 
-  
+    if ($.text(this) === "" && !checkWinner())
+
     doTurn(this)
   })
 
@@ -79,15 +79,15 @@ function attachListeners() {
 }
 
 function clearBoard() {
-  $('td').empty(); 
-  turn = 0; 
-  currentGame = 0; 
+  $('td').empty();
+  turn = 0;
+  currentGame = 0;
 }
 
 function previousGames() {
   $('#games').empty();
-  $.get('/games', function(data) { 
-    if (data.data.length > 0) { 
+  $.get('/games', function(data) {
+    if (data.data.length > 0) {
       data.data.forEach(makePreviousGameButton);
     }
   })
@@ -103,16 +103,16 @@ function makePreviousGameButton(game) {
 
 function reloadGame(gameID) {
   d
-  $.get(`/games/${gameID}`, function(game) { 
-    let state = game.data.attributes.state; 
-  
+  $.get(`/games/${gameID}`, function(game) {
+    let state = game.data.attributes.state;
+
     let id = game.data.id;
     let board = {}
-    
+
 
     let index = 0;
-    
-    for (let y = 0; y < 3; y++) { 
+
+    for (let y = 0; y < 3; y++) {
       for (let x = 0; x < 3; x++) {
       document.querySelector(`[data-x="${x}"][data-y="${y}"]`).innerHTML = state[index];
       index++
@@ -130,24 +130,24 @@ function reloadGame(gameID) {
 }
 
 function saveGame() {
-  var state = []; 
+  var state = [];
 
   $('td').text(function(index, square) {
     state.push(square);
   })
-  
+
 
   var gameData = {state: state}
 
-  if (currentGame) { 
+  if (currentGame) {
     $.ajax({
-      type: "PATCH", 
+      type: "PATCH",
       url: `/games/${currentGame}`,
-      data: gameData 
+      data: gameData
     })
   } else {
-    $.post('/games', gameData, function(game) { 
-      currentGame = game.data.id; 
+    $.post('/games', gameData, function(game) {
+      currentGame = game.data.id;
       $('#games').append(`<button id="gameid-${game.data.id}">${game.data.id}</button><br>`);
       $("#gameid-" + game.data.id).on('click', () => reloadGame(game.data.id));
     });
